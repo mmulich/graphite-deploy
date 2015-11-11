@@ -1,0 +1,11 @@
+server {
+    listen   80;
+    server_name graphite.vbox graphite;
+    access_log /var/log/nginx/graphite.vbox/access.log;
+    error_log /var/log/nginx/graphite.vbox/error.log;
+
+    location / {
+        include        uwsgi_params;
+        uwsgi_pass     127.0.0.1:3031;
+    }
+}

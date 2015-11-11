@@ -1,0 +1,8 @@
+---
+- name: install uwsgi for nginx with python support
+  sudo: yes
+  apt: name={{ item }} state=present
+  with_items:
+    - uwsgi
+    - uwsgi-plugin-python
+    - nginx-extras

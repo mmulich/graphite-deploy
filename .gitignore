@@ -1,0 +1,7 @@
+# Build files #
+###############
+.vagrant
+
+# Installed roles #
+###################
+roles/yaegashi.blockinfile

@@ -1,0 +1,43 @@
+---
+- name: install carbon packages
+  sudo: yes
+  apt: name=graphite-carbon state=present
+
+- name: enable carbon-cache
+  sudo: yes
+  lineinfile:
+    dest=/etc/default/graphite-carbon
+    state=present
+    regexp="^CARBON_CACHE_ENABLED=[false|true]"
+    line="CARBON_CACHE_ENABLED=true"
+
+- name: enable log rotation
+  sudo: yes
+  lineinfile:
+    dest=/etc/carbon/carbon.conf
+    state=present
+    regexp="^ENABLE_LOGROTATION = [False|True]"
+    line="ENABLE_LOGROTATION = True"
+
+- name: configure a 'test.' section
+  sudo: yes
+  blockinfile:
+    dest: /etc/carbon/storage-schemas.conf
+    insertafter: EOF
+    block: |
+      [test]
+      pattern = ^test\.
+      retentions = 10s:10m,1m:1h,10m:1d
+
+- stat: path=/etc/carbon/storage-aggregation.conf
+  ignore_errors: true
+  register: carbon_storage_aggregation_conf
+
+- name: copy ansible storage-aggregation.conf.example
+  sudo: yes
+  command: cp /usr/share/doc/graphite-carbon/examples/storage-aggregation.conf.example /etc/carbon/storage-aggregation.conf
+  when: not carbon_storage_aggregation_conf.stat.exists
+
+- name: start carbon
+  sudo: yes
+  service: name=carbon-cache state=restarted

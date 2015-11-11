@@ -1,0 +1,5 @@
+# ansible-galaxy install -r requirements.yml
+
+ # install 'blockinfile', https://github.com/yaegashi/ansible-role-blockinfile
+ - src: yaegashi.blockinfile
+   path: ./roles

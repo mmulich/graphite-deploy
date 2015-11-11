@@ -1,0 +1,14 @@
+---
+
+# Ensure the system is up-to-date before we do anything.
+# This prevents errors related to missing external resources.
+- name: update system
+  hosts: vagrant
+  tasks:
+    - include: tasks/apt-update.yml
+
+- name: deploy services
+  hosts: vagrant
+  roles:
+   - carbon
+   - graphite-web
