@@ -1,0 +1,11 @@
+---
+- name: configure collectd 'write_graphite' plugin
+  sudo: yes
+  template:
+    src=etc/collectd/collectd.conf.d/write_graphite.conf
+    dest=/etc/collectd/collectd.conf.d/write_graphite.conf
+    owner=root
+    group=root
+    mode=0644
+  notify:
+    - restart collectd
