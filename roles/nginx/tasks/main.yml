@@ -2,3 +2,11 @@
 - name: install nginx
   sudo: yes
   apt: name=nginx state=present
+
+- name: disable default site
+  sudo: yes
+  file:
+    dest=/etc/nginx/sites-enabled/default
+    state=absent
+  notify:
+    - reload nginx
