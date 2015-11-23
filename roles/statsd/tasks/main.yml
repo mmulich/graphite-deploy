@@ -1,0 +1,48 @@
+---
+- name: install task prerequisites
+  sudo: yes
+  apt: name={{ item }} state=present
+  with_items:
+    - git
+    - dpkg-dev
+
+- name: checkout etsy/statsd
+  git: 
+    repo=https://github.com/etsy/statsd.git
+    dest=~/statsd
+    version=v0.7.2
+
+# because statsd starts sending things before it's properly configured.
+- name: stop carbon-cache
+  sudo: yes
+  service: name=carbon-cache state=stopped
+
+- name: install build prerequisites
+  sudo: yes
+  apt: name={{ item }} force=yes state=present
+  with_items:
+    - debhelper
+    - nodejs
+
+- name: build statsd
+  shell: dpkg-buildpackage
+    chdir=~/statsd
+
+- name: install statsd
+  sudo: yes
+  shell: dpkg -i statsd*.deb
+    chdir={{ ansible_env.HOME }}
+
+- name: configure statsd
+  sudo: yes
+  # '>-' declares this as a multiline value, rather than more YAML.
+  lineinfile: >-
+    dest=/etc/statsd/localConfig.js
+    insertafter="^, port: 8125"
+    regexp="^, graphite:"
+    state=present
+    line=", graphite: { legacyNamespace: false }"
+
+- name: restart carbon-cache
+  sudo: yes
+  service: name=carbon-cache state=restarted

@@ -38,6 +38,37 @@
   command: cp /usr/share/doc/graphite-carbon/examples/storage-aggregation.conf.example /etc/carbon/storage-aggregation.conf
   when: not carbon_storage_aggregation_conf.stat.exists
 
+- name: configure storage aggregates
+  sudo: yes
+  blockinfile:
+    dest: /etc/carbon/storage-aggregation.conf
+    insertafter: EOF
+    block: |
+      [count]
+      pattern = \.count$
+      xFilesFactor = 0
+      aggregationMethod = sum
+
+      [lower]
+      pattern = \.lower(_\d+)?$
+      xFilesFactor = 0.1
+      aggregationMethod = min
+
+      [upper]
+      pattern = \.upper(_\d+)?$
+      xFilesFactor = 0.1
+      aggregationMethod = max
+
+      [sum]
+      pattern = \.sum$
+      xFilesFactor = 0
+      aggregationMethod = sum
+
+      [gauges]
+      pattern = ^.*\.gauges\..*
+      xFilesFactor = 0
+      aggregationMethod = last
+
 - name: start carbon
   sudo: yes
   service: name=carbon-cache state=restarted
